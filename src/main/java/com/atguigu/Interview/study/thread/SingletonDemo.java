@@ -6,7 +6,7 @@ package com.atguigu.Interview.study.thread;
  * @author connor.chen
  */
 public class SingletonDemo {
-    private static SingletonDemo instance = null;
+    private volatile static SingletonDemo instance = null;
 
     private SingletonDemo() {
         System.out.println(Thread.currentThread().getName() + "\t 我是构造方法SingletonDemo（）");
