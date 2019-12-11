@@ -1,17 +1,13 @@
 package com.atguigu.Interview.study.jvm.oom;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
-
-import java.lang.reflect.Method;
+import javassist.ClassPool;
 
 /**
  * Created on 2019/12/9
  *
  * @author connor.chen
  * JVM参数
- * -XX:MetaspaceSize=8m -XX:MaxMetaspaceSize=8m
+ * -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=5m
  *
  * java 8及以后的版本使用Metaspace来替代永久代。
  *
@@ -32,27 +28,16 @@ public class MetaspaceOOMTest {
     static class OOMTest{ }
 
 
-    public static void main(String[] args) {
-        int i = 0;
-        try {
-            while (true){
-                i++;
-                Enhancer enhancer = new Enhancer();
-                enhancer.setSuperclass(OOMTest.class);
-                enhancer.setUseCache(false);
-                enhancer.setCallback(new MethodInterceptor() {
-                    @Override
-                    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-                        return methodProxy.invokeSuper(o, args);
-                    }
-                });
-                enhancer.create();
-            }
-        }catch (Exception e){
-            System.out.println("第" + i + "次后发生异常");
-            e.printStackTrace();
-        }finally {
-
+    public static void main(String[] args) throws Exception {
+        for (int i = 0; i < 100_000_000; i++) {
+            Class generate = generate("oOMTest" + i);
+            System.out.println(generate.getSimpleName());
         }
+    }
+
+
+    public static Class generate(String name) throws Exception {
+        ClassPool pool = ClassPool.getDefault();
+        return pool.makeClass(name).toClass();
     }
 }
